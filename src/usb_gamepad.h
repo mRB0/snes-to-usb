@@ -6,11 +6,18 @@
 void usb_init(void);			// initialize everything
 uint8_t usb_configured(void);		// is the USB port configured
 
-int8_t usb_gamepad_send(void);
+int8_t usb_gamepad1_send(void);
+int8_t usb_gamepad2_send(void);
 
-extern volatile int8_t gamepad_xaxis;
-extern volatile int8_t gamepad_yaxis;
-extern volatile uint8_t gamepad_buttons;
+
+struct gamepad {
+    volatile int8_t x_axis;
+    volatile int8_t y_axis;
+    volatile uint8_t buttons;
+};
+
+extern struct gamepad gamepad1;
+extern struct gamepad gamepad2;
 
 // This file does not include the HID debug functions, so these empty
 // macros replace them with nothing, so users can compile code that
