@@ -49,7 +49,7 @@ SRC =	$(TARGET).c usb_gamepad.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = 
+CPPSRC = maincpp.cpp joypad.cpp
 
 
 # MCU name, you MUST set this to match the board you are using
