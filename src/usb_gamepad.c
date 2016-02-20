@@ -65,7 +65,7 @@
 
 #define GAMEPAD_INTERFACE       0
 #define GAMEPAD_ENDPOINT       3
-#define GAMEPAD_SIZE           8
+#define GAMEPAD_SIZE           3
 #define GAMEPAD_BUFFER         EP_DOUBLE_BUFFER
 
 static const uint8_t PROGMEM endpoint_config_table[] = {
@@ -99,7 +99,7 @@ static uint8_t const PROGMEM device_descriptor[] = {
     ENDPOINT0_SIZE,                         // bMaxPacketSize0
     LSB(VENDOR_ID), MSB(VENDOR_ID),         // idVendor
     LSB(PRODUCT_ID), MSB(PRODUCT_ID),       // idProduct
-    0x00, 0x3c,                             // bcdDevice
+    0x00, 0x38,                             // bcdDevice
     1,                                      // iManufacturer
     2,                                      // iProduct
     0,                                      // iSerialNumber
@@ -111,9 +111,9 @@ static uint8_t const PROGMEM gamepad_hid_report_desc[] = {
     0x05, 0x01,          // Usage Page (Generic Desktop),
     0x09, 0x05,          // Usage (Game Pad),
     0xA1, 0x01,          // Collection (Application),
-    0xA1, 0x00,          // Collection (Physical),
 
-    0x85, 0x01,          //   Report ID (1),
+// uncomment when updating to support two gamepads
+//    0x85, 0x01,          //   Report ID (1),
     
     0x75, 0x08,          //   Report Size (8),
     0x95, 0x02,          //   Report Count (2),
@@ -135,38 +135,7 @@ static uint8_t const PROGMEM gamepad_hid_report_desc[] = {
     0x25, 0x01,          //   Logical Maximum (1),
     0x81, 0x02,          //   Input (Data, Variable, Absolute),
         
-    0xc0,                // End Collection
-    0xc0,                // End Collection
-
-    0x05, 0x01,          // Usage Page (Generic Desktop),
-    0x09, 0x05,          // Usage (Game Pad),
-    0xA1, 0x01,          // Collection (Application),
-    0xA1, 0x00,          // Collection (Physical),
-
-    0x85, 0x02,          //   Report ID (2),
-    
-    0x75, 0x08,          //   Report Size (8),
-    0x95, 0x02,          //   Report Count (2),
-    
-    0x05, 0x01,          //   Usage Page (Generic Desktop),
-    0x09, 0x30,          //   Usage (X),
-    0x09, 0x31,          //   Usage (Y),
-    0x15, 0x81,          //   Logical Minimum (-127),
-    0x25, 0x7f,          //   Logical Maximum (127),
-    0x81, 0x02,          //   Input (Data, Variable, Absolute), ; axes
-
-    0x75, 0x01,          //   Report Size (1),
-    0x95, 0x08,          //   Report Count (8),
-
-    0x05, 0x09,          //   Usage Page (Buttons),
-    0x19, 0x01,          //   Usage Minimum (button 1),
-    0x29, 0x08,          //   Usage Maximum (button 8),
-    0x15, 0x00,          //   Logical Minimum (0),
-    0x25, 0x01,          //   Logical Maximum (1),
-    0x81, 0x02,          //   Input (Data, Variable, Absolute),
-        
-    0xc0,                // End Collection
-    0xc0,                // End Collection
+    0xc0                 // End Collection
 };
 
 
@@ -312,9 +281,9 @@ uint8_t usb_configured(void)
 }
 
 
-static void send_gamepad_data(uint8_t gamepad_idx);
+static void send_gamepad_data(void);
 
-int8_t usb_gamepad_send(uint8_t gamepad_idx)
+int8_t usb_gamepad_send(void)
 {
     uint8_t intr_state, timeout;
 
@@ -336,7 +305,7 @@ int8_t usb_gamepad_send(uint8_t gamepad_idx)
         cli();
         UENUM = GAMEPAD_ENDPOINT;
     }
-    send_gamepad_data(gamepad_idx);
+    send_gamepad_data();
     UEINTX = 0x3A;
     gamepad_idle_count = 0;
     SREG = intr_state;
@@ -349,8 +318,7 @@ int8_t usb_gamepad_send(uint8_t gamepad_idx)
  *
  **************************************************************************/
 
-static void send_gamepad_data(uint8_t gamepad_idx) {
-    UEDATX = gamepad_idx + 1; // report id (1-indexed)
+static void send_gamepad_data() {
     UEDATX = (uint8_t)gamepad_xaxis;
     UEDATX = (uint8_t)gamepad_yaxis;
     UEDATX = gamepad_buttons;
@@ -381,8 +349,7 @@ ISR(USB_GEN_vect)
                 gamepad_idle_count++;
                 if (gamepad_idle_count == gamepad_idle_config) {
                     gamepad_idle_count = 0;
-                    send_gamepad_data(0);
-                    send_gamepad_data(1);
+                    send_gamepad_data();
                     UEINTX = 0x3A;
                 }
             }
@@ -552,7 +519,7 @@ ISR(USB_COM_vect)
             if (bmRequestType == 0xA1) {
                 if (bRequest == HID_GET_REPORT) {
                     usb_wait_in_ready();
-                    send_gamepad_data((wValue & 0xff) - 1);
+                    send_gamepad_data();
                     usb_send_in();
                     return;
                 }

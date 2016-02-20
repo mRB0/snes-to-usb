@@ -81,91 +81,89 @@ static void run(void) {
     sei();
     
 	for(;;) {
-        for (int i = 0; i < 2; i++) {
-            gamepad_xaxis = -127;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        gamepad_xaxis = -127;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            gamepad_yaxis = -127;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        gamepad_yaxis = -127;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            gamepad_xaxis = 127;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        gamepad_xaxis = 127;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            gamepad_yaxis = 127;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        gamepad_yaxis = 127;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            gamepad_xaxis = 0;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        gamepad_xaxis = 0;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            gamepad_yaxis = 0;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        gamepad_yaxis = 0;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x01;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_ON;
+        gamepad_buttons = 0x01;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x02;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_OFF;
+        gamepad_buttons = 0x02;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x04;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_ON;
+        gamepad_buttons = 0x04;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x08;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_OFF;
+        gamepad_buttons = 0x08;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x10;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_ON;
+        gamepad_buttons = 0x10;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x20;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_OFF;
+        gamepad_buttons = 0x20;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x40;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_ON;
+        gamepad_buttons = 0x40;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x80;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_OFF;
+        gamepad_buttons = 0x80;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0xff;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_ON;
+        gamepad_buttons = 0xff;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x55;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_OFF;
+        gamepad_buttons = 0x55;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0xAA;
-            usb_gamepad_send(i);
-            _delay_ms(250);
+        LED_ON;
+        gamepad_buttons = 0xAA;
+        usb_gamepad_send();
+        _delay_ms(250);
         
-            
-            gamepad_buttons = 0x00;
-            usb_gamepad_send(i);
-            _delay_ms(250);
-        }
+        LED_ON;
+        gamepad_buttons = 0x00;
+        usb_gamepad_send();
+        _delay_ms(250);
         
     }
 }

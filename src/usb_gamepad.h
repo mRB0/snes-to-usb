@@ -6,7 +6,7 @@
 void usb_init(void);			// initialize everything
 uint8_t usb_configured(void);		// is the USB port configured
 
-int8_t usb_gamepad_send(uint8_t gamepad_idx);
+int8_t usb_gamepad_send(void);
 
 extern volatile int8_t gamepad_xaxis;
 extern volatile int8_t gamepad_yaxis;
