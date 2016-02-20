@@ -99,7 +99,7 @@ static uint8_t const PROGMEM device_descriptor[] = {
     ENDPOINT0_SIZE,                         // bMaxPacketSize0
     LSB(VENDOR_ID), MSB(VENDOR_ID),         // idVendor
     LSB(PRODUCT_ID), MSB(PRODUCT_ID),       // idProduct
-    0x00, 0x3b,                             // bcdDevice
+    0x00, 0x3c,                             // bcdDevice
     1,                                      // iManufacturer
     2,                                      // iProduct
     0,                                      // iSerialNumber
@@ -111,6 +111,7 @@ static uint8_t const PROGMEM gamepad_hid_report_desc[] = {
     0x05, 0x01,          // Usage Page (Generic Desktop),
     0x09, 0x05,          // Usage (Game Pad),
     0xA1, 0x01,          // Collection (Application),
+    0xA1, 0x00,          // Collection (Physical),
 
     0x85, 0x01,          //   Report ID (1),
     
@@ -135,10 +136,12 @@ static uint8_t const PROGMEM gamepad_hid_report_desc[] = {
     0x81, 0x02,          //   Input (Data, Variable, Absolute),
         
     0xc0,                // End Collection
+    0xc0,                // End Collection
 
     0x05, 0x01,          // Usage Page (Generic Desktop),
     0x09, 0x05,          // Usage (Game Pad),
     0xA1, 0x01,          // Collection (Application),
+    0xA1, 0x00,          // Collection (Physical),
 
     0x85, 0x02,          //   Report ID (2),
     
@@ -162,6 +165,7 @@ static uint8_t const PROGMEM gamepad_hid_report_desc[] = {
     0x25, 0x01,          //   Logical Maximum (1),
     0x81, 0x02,          //   Input (Data, Variable, Absolute),
         
+    0xc0,                // End Collection
     0xc0,                // End Collection
 };
 
