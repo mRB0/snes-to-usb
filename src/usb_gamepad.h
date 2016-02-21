@@ -15,6 +15,8 @@ uint8_t usb_gamepad_configured(void);		// is the USB port configured
 int8_t usb_gamepad1_send(void);
 int8_t usb_gamepad2_send(void);
 
+void usb_gamepad_ISR_USB_COM_vect(void);
+void usb_gamepad_ISR_USB_GEN_vect(void);
 
 extern struct gamepad usb_gamepad1;
 extern struct gamepad usb_gamepad2;

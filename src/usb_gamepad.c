@@ -398,7 +398,7 @@ static void send_gamepad2_report() {
 // USB Device Interrupt - handle all device-level events
 // the transmit buffer flushing is triggered by the start of frame
 //
-ISR(USB_GEN_vect)
+void usb_gamepad_ISR_USB_GEN_vect()
 {
     uint8_t intbits;
     static uint8_t div4=0;
@@ -465,7 +465,7 @@ static inline void usb_ack_out(void)
 // other endpoints are manipulated by the user-callable
 // functions, and the start-of-frame interrupt.
 //
-ISR(USB_COM_vect)
+void usb_gamepad_ISR_USB_COM_vect()
 {
     uint8_t intbits;
     const uint8_t *list;
