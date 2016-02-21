@@ -3,6 +3,7 @@
 
 #include "gamepad.h"
 #include "usb_gamepad.h"
+#include "iusb_controller.h"
 
 class USBControllerAsGamepad : public IUSBController {
 
@@ -20,12 +21,13 @@ public:
         return usb_gamepad_configured();
     }
     
-    virtual int8_t gamepad1_send() {
-        return usb_gamepad1_send();
-    }
-    
-    virtual int8_t gamepad2_send() {
-        return usb_gamepad2_send();
+    virtual int8_t send() {
+        int8_t result;
+        
+        result = usb_gamepad1_send();
+        result |= usb_gamepad2_send();
+        
+        return result;
     }
 
     virtual void ISR_USB_GEN_vect() {

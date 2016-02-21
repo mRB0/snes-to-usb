@@ -10,6 +10,7 @@
 
 #include "iusb_controller.h"
 #include "usb_controller_as_gamepad.h"
+#include "usb_controller_as_keyboard.h"
 
 #include "joypad.h"
 
@@ -54,18 +55,15 @@ static void run(IUSBController &ctrl) {
         joypad.input_ready = false;
 
         for (int i = 0; i < 2; i++) {
-            int8_t (IUSBController::*send_fn)();
             struct gamepad *gamepad;
             uint16_t *laststate;
             KeyState nowstate(0);
             
             if (i == 0) {
-                send_fn = &IUSBController::gamepad1_send;
                 gamepad = &ctrl.gamepad1;
                 laststate = &laststate_P1;
                 nowstate = joypad.get_held_P1();
             } else {
-                send_fn = &IUSBController::gamepad2_send;
                 gamepad = &ctrl.gamepad2;
                 laststate = &laststate_P2;
                 nowstate = joypad.get_held_P2();
@@ -127,8 +125,9 @@ static void run(IUSBController &ctrl) {
 
                 gamepad->buttons = buttons;
                 
-                (ctrl.*send_fn)();
             }
+
+            ctrl.send();
                 
         }
         
@@ -194,6 +193,11 @@ static void setup_phase1(void) {
 
     if (_device_mode == DeviceModeGamepad) {
         USBControllerAsGamepad controller;
+        _usb_controller = &controller;
+        setup_phase2(controller);
+        _usb_controller = (IUSBController *volatile)0;
+    } else {
+        USBControllerAsKeyboard controller;
         _usb_controller = &controller;
         setup_phase2(controller);
         _usb_controller = (IUSBController *volatile)0;
