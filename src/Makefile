@@ -45,7 +45,7 @@ TARGET = main
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC =	$(TARGET).c usb_gamepad.c
+SRC =	$(TARGET).c usb_gamepad.c usb_keyboard_gamepad.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
