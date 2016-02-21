@@ -8,9 +8,8 @@
 
 #include <util/delay.h>
 
-extern "C" {
-#include "usb_gamepad.h"
-}
+#include "iusb_controller.h"
+#include "usb_controller_as_gamepad.h"
 
 #include "joypad.h"
 
@@ -27,61 +26,14 @@ extern "C" {
 #define LED_OFF		(PORTD &= ~(1<<6))
 #define LED_ON		(PORTD |= (1<<6))
 
+enum DeviceMode {
+    DeviceModeGamepad,
+    DeviceModeKeyboard
+};
 
-static void setup(void) {
+static DeviceMode _device_mode;
 
-    LED_CONFIG;
-    LED_ON;
-    
-    // Clear the watchdog
-    MCUSR &= ~_BV(WDRF);
-    wdt_disable();
-    wdt_reset();
-    
-    // 16 MHz clock speed
-	CPU_PRESCALE(0);
-
-    // Configure PORTB[0:6] as inputs.
-    DDRB = 0x00;
-    // Turn on internal pull-ups on PORTB[0:6].  This means we will read
-    // them as logic high when the switches are open.  Logic low means
-    // the switch is pressed (ie. active low).
-    PORTB = 0x7f;
-
-    LED_OFF;
-    
-	// Initialize USB, and then wait for the host to set
-	// configuration.  If the Teensy is powered without a PC connected
-	// to the USB port, this will wait forever.
-	usb_init();
-	while (!usb_configured()) /* wait */ ;
-
-    LED_ON;
-    
-	// Wait an extra second for the PC's operating system to load
-	// drivers and do whatever it does to actually be ready for input.
-	// Show a little light show during this time.
-    for(uint8_t i = 0; i < 5; i++) {
-        _delay_ms(180);
-        LED_OFF;
-        _delay_ms(20);
-        LED_ON;
-    }
-    
-    cli();
-
-    joypad.init();
-    
-    /* // Configure timer 0 to give us ticks */
-	/* TCCR0A = 0x00; */
-	/* TCCR0B = Timer0Overflow & 0x07; */
-	/* TIMSK0 = (1<<TOIE0); // use the overflow interrupt only */
-    /* _timer0_fired = 0; */
-}
-
-
-
-static void run(void) {
+static void run(IUSBController &ctrl) {
     wdt_reset();
     //wdt_enable(WDTO_1S);
 
@@ -98,19 +50,19 @@ static void run(void) {
         joypad.input_ready = false;
 
         for (int i = 0; i < 2; i++) {
-            int8_t (*send_fn)();
+            int8_t (IUSBController::*send_fn)();
             struct gamepad *gamepad;
             uint16_t *laststate;
             KeyState nowstate(0);
             
             if (i == 0) {
-                send_fn = usb_gamepad1_send;
-                gamepad = &gamepad1;
+                send_fn = &IUSBController::gamepad1_send;
+                gamepad = &ctrl.gamepad1;
                 laststate = &laststate_P1;
                 nowstate = joypad.get_held_P1();
             } else {
-                send_fn = usb_gamepad2_send;
-                gamepad = &gamepad2;
+                send_fn = &IUSBController::gamepad2_send;
+                gamepad = &ctrl.gamepad2;
                 laststate = &laststate_P2;
                 nowstate = joypad.get_held_P2();
             }
@@ -171,112 +123,81 @@ static void run(void) {
 
                 gamepad->buttons = buttons;
                 
-                send_fn();
+                (ctrl.*send_fn)();
             }
                 
         }
         
     }
+}
+
+
+static void setup_phase2_then_run(IUSBController &ctrl) {
+	// Initialize USB, and then wait for the host to set
+	// configuration.  If the Teensy is powered without a PC connected
+	// to the USB port, this will wait forever.
+	ctrl.init();
+	while (!ctrl.is_configured()) /* wait */ ;
+
+    LED_ON;
     
-    for(;;) {
-        for(int i = 0; i < 2; i++) {
-            int8_t (*send_fn)();
-            struct gamepad *active_gamepad;
-            
-            if (i == 0) {
-                send_fn = usb_gamepad1_send;
-                active_gamepad = &gamepad1;
-            } else {
-                send_fn = usb_gamepad2_send;
-                active_gamepad = &gamepad2;
-            }
-        
-            active_gamepad->x_axis = -127;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->y_axis = -127;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->x_axis = 127;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->y_axis = 127;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->x_axis = 0;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->y_axis = 0;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->buttons = 0x01;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->buttons = 0x02;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->buttons = 0x04;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->buttons = 0x08;
-            send_fn();
-            _delay_ms(250);
-        
-            active_gamepad->buttons = 0x10;
-            send_fn();
-            _delay_ms(250);
-        
-            LED_OFF;
-            active_gamepad->buttons = 0x20;
-            send_fn();
-            _delay_ms(250);
-        
-            LED_ON;
-            active_gamepad->buttons = 0x40;
-            send_fn();
-            _delay_ms(250);
-        
-            LED_OFF;
-            active_gamepad->buttons = 0x80;
-            send_fn();
-            _delay_ms(250);
-        
-            LED_ON;
-            active_gamepad->buttons = 0xff;
-            send_fn();
-            _delay_ms(250);
-        
-            LED_OFF;
-            active_gamepad->buttons = 0x55;
-            send_fn();
-            _delay_ms(250);
-        
-            LED_ON;
-            active_gamepad->buttons = 0xAA;
-            send_fn();
-            _delay_ms(250);
-        
-            LED_ON;
-            active_gamepad->buttons = 0x00;
-            send_fn();
-            _delay_ms(250);
-        
-        }
+	// Wait an extra second for the PC's operating system to load
+	// drivers and do whatever it does to actually be ready for input.
+	// Show a little light show during this time.
+    for(uint8_t i = 0; i < 5; i++) {
+        _delay_ms(180);
+        LED_OFF;
+        _delay_ms(20);
+        LED_ON;
     }
+    
+    cli();
+
+    joypad.init();
+
+    run(ctrl);
+}
+
+static void setup_phase1_then_run(void) {
+
+    LED_CONFIG;
+    LED_ON;
+    
+    // Clear the watchdog
+    MCUSR &= ~_BV(WDRF);
+    wdt_disable();
+    wdt_reset();
+    
+    // 16 MHz clock speed
+	CPU_PRESCALE(0);
+
+    // Find out whether we're going to be a keyboard or a game controller.
+    DDRF &= ~(_BV(DDF2) | _BV(DDF6)); // in: PORTF[2,6]
+    DDRF |= _BV(DDF4); // out (low): PORTF4
+    
+    PORTF |= _BV(PF2) | _BV(PF6); // pull-ups: PORTF[2,6]
+    PORTF &= ~_BV(PF4); // out low: PORTF4
+
+    // PORTF2: high = gamepad
+    // All that, and we only read PORTF2? hah!
+    _device_mode = (PINF & _BV(PINF2)) ? DeviceModeGamepad : DeviceModeKeyboard;
+
+    // Done with PORTF; turn it off.
+    DDRF &= ~_BV(DDF4);
+    PORTF &= ~(_BV(PF2) | _BV(PF4) | _BV(PF6));
+
+    LED_OFF;
+
+    if (_device_mode == DeviceModeGamepad) {
+        USBControllerAsGamepad controller;
+        setup_phase2_then_run(controller);
+    }
+    
+    
 }
 
 int maincpp(void) {
-    setup();
-    run();
+    setup_phase1_then_run();
     return 0;
 }
 

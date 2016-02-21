@@ -266,8 +266,8 @@ static struct descriptor_list_struct {
 // zero when we are not configured, non-zero when enumerated
 static volatile uint8_t usb_configuration=0;
 
-struct gamepad gamepad1 = {0, 0, 0};
-struct gamepad gamepad2 = {0, 0, 0};
+struct gamepad usb_gamepad1 = {0, 0, 0};
+struct gamepad usb_gamepad2 = {0, 0, 0};
 
 // protocol setting from the host.  We use exactly the same report
 // either way, so this variable only stores the setting since we
@@ -293,7 +293,7 @@ static uint8_t gamepad2_idle_count=0;
 
 
 // initialize USB
-void usb_init(void)
+void usb_gamepad_init(void)
 {
     HW_CONFIG();
     USB_FREEZE();   // enable USB
@@ -308,7 +308,7 @@ void usb_init(void)
 
 // return 0 if the USB is not configured, or the configuration
 // number selected by the HOST
-uint8_t usb_configured(void)
+uint8_t usb_gamepad_configured(void)
 {
     return usb_configuration;
 }
@@ -388,11 +388,11 @@ static void send_gamepad_report(struct gamepad *gamepad) {
 }
 
 static void send_gamepad1_report() {
-    send_gamepad_report(&gamepad1);
+    send_gamepad_report(&usb_gamepad1);
 }
 
 static void send_gamepad2_report() {
-    send_gamepad_report(&gamepad2);
+    send_gamepad_report(&usb_gamepad2);
 }
 
 // USB Device Interrupt - handle all device-level events
