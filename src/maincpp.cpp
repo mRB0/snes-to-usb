@@ -33,6 +33,8 @@ enum DeviceMode {
 
 static DeviceMode _device_mode;
 
+static IUSBController *volatile _usb_controller; // reference kept so we can dispatch to ISRs
+
 static void run(IUSBController &ctrl) {
     wdt_reset();
     //wdt_enable(WDTO_1S);
@@ -132,7 +134,7 @@ static void run(IUSBController &ctrl) {
 }
 
 
-static void setup_phase2_then_run(IUSBController &ctrl) {
+static void setup_phase2(IUSBController &ctrl) {
 	// Initialize USB, and then wait for the host to set
 	// configuration.  If the Teensy is powered without a PC connected
 	// to the USB port, this will wait forever.
@@ -158,7 +160,7 @@ static void setup_phase2_then_run(IUSBController &ctrl) {
     run(ctrl);
 }
 
-static void setup_phase1_then_run(void) {
+static void setup_phase1(void) {
 
     LED_CONFIG;
     LED_ON;
@@ -190,18 +192,28 @@ static void setup_phase1_then_run(void) {
 
     if (_device_mode == DeviceModeGamepad) {
         USBControllerAsGamepad controller;
-        setup_phase2_then_run(controller);
+        _usb_controller = &controller;
+        setup_phase2(controller);
+        _usb_controller = (IUSBController *volatile)0;
     }
     
     
 }
 
 int maincpp(void) {
-    setup_phase1_then_run();
+    setup_phase1();
     return 0;
 }
 
 
 // Timer 0 overflow interrupt handler.
 ISR(TIMER0_OVF_vect) {
+}
+
+ISR(USB_GEN_vect) {
+    _usb_controller->ISR_USB_GEN_vect();
+}
+
+ISR(USB_COM_vect) {
+    _usb_controller->ISR_USB_COM_vect();
 }

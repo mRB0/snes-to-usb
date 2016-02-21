@@ -28,6 +28,13 @@ public:
         return usb_gamepad2_send();
     }
 
+    virtual void ISR_USB_GEN_vect() {
+        usb_gamepad_ISR_USB_GEN_vect();
+    }
+    
+    virtual void ISR_USB_COM_vect() {
+        usb_gamepad_ISR_USB_COM_vect();
+    }
 
 };
 

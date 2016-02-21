@@ -16,6 +16,9 @@ public:
     virtual uint8_t is_configured() = 0;
     virtual int8_t gamepad1_send() = 0;
     virtual int8_t gamepad2_send() = 0;
+    
+    virtual void ISR_USB_GEN_vect() = 0;
+    virtual void ISR_USB_COM_vect() = 0;
 
     struct gamepad &gamepad1;
     struct gamepad &gamepad2;
