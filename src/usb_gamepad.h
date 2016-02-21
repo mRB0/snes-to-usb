@@ -1,31 +1,23 @@
-#ifndef usb_serial_h__
-#define usb_serial_h__
+#ifndef usb_gamepad_h__
+#define usb_gamepad_h__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "gamepad.h"
 
 #include <stdint.h>
 
-void usb_init(void);			// initialize everything
-uint8_t usb_configured(void);		// is the USB port configured
+void usb_gamepad_init(void);			// initialize everything
+uint8_t usb_gamepad_configured(void);		// is the USB port configured
 
 int8_t usb_gamepad1_send(void);
 int8_t usb_gamepad2_send(void);
 
 
-struct gamepad {
-    volatile int8_t x_axis;
-    volatile int8_t y_axis;
-    volatile uint8_t buttons;
-};
-
-extern struct gamepad gamepad1;
-extern struct gamepad gamepad2;
-
-// This file does not include the HID debug functions, so these empty
-// macros replace them with nothing, so users can compile code that
-// has calls to these functions.
-#define usb_debug_putchar(c)
-#define usb_debug_flush_output()
-
-
+extern struct gamepad usb_gamepad1;
+extern struct gamepad usb_gamepad2;
 
 
 // Everything below this point is only intended for usb_serial.c
@@ -99,4 +91,10 @@ extern struct gamepad gamepad2;
 #define CDC_GET_LINE_CODING		0x21
 #define CDC_SET_CONTROL_LINE_STATE	0x22
 #endif
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif
+
