@@ -37,7 +37,7 @@ static IUSBController *volatile _usb_controller; // reference kept so we can dis
 
 static void run(IUSBController &ctrl) {
     wdt_reset();
-    //wdt_enable(WDTO_1S);
+    wdt_enable(WDTO_1S);
 
     sei();
 
@@ -46,6 +46,8 @@ static void run(IUSBController &ctrl) {
     uint16_t laststate_P1 = 0xffff, laststate_P2 = 0xffff;
     
     for(;;) {
+        wdt_reset();
+        
         while (!joypad.input_ready) {
         }
 
