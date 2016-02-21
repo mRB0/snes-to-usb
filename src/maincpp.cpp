@@ -181,6 +181,8 @@ static void setup_phase1(void) {
     PORTF |= _BV(PF2) | _BV(PF6); // pull-ups: PORTF[2,6]
     PORTF &= ~_BV(PF4); // out low: PORTF4
 
+    _delay_ms(20);
+    
     // PORTF2: high = gamepad
     // All that, and we only read PORTF2? hah!
     _device_mode = (PINF & _BV(PINF2)) ? DeviceModeGamepad : DeviceModeKeyboard;
