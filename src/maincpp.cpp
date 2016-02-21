@@ -206,10 +206,6 @@ int maincpp(void) {
 }
 
 
-// Timer 0 overflow interrupt handler.
-ISR(TIMER0_OVF_vect) {
-}
-
 ISR(USB_GEN_vect) {
     _usb_controller->ISR_USB_GEN_vect();
 }
